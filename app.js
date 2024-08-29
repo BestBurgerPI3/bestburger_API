@@ -14,6 +14,6 @@ app.use('/bestburger', routes);
 
 app.use(express.static(path.resolve("public")));
 
-http.createServer(app).listen(PORT, HOSTNAME, () => {  
+http.createServer(app).listen(PORT, HOSTNAME, () => {
     console.log(`Server running at http://${HOSTNAME}:${PORT}/`);
 });
