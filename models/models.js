@@ -1,29 +1,11 @@
 import { pool } from './db.js';
 
 export class productModel {
-    static async getAll() {
+    static async getProducts(nit) {
         try {
-            const restaurantes = await pool.query('SELECT * FROM Restaurante');
-
-            const restaurantesConProductos = await Promise.all(
-                restaurantes.map(async (restaurante) => {
-                    const productos = await pool.query(
-                        'SELECT * FROM Hamburguesa WHERE restaurante_NIT = ?',
-                        [restaurante.NIT] 
-                    );
-                    
-                    return {
-                        ...restaurante,
-                        productos: productos
-                    };
-                })
-            );
+            const hamburguesas = await pool.query('SELECT * FROM Hamburguesa WHERE Restaurante_NIT = ?', [nit]);
             
-            const result = {
-                restaurantes: restaurantesConProductos
-            };
-
-            return result;
+            return hamburguesas;
         }catch (e) {
             console.error(e.message);
         }
