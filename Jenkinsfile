@@ -1,71 +1,56 @@
 pipeline {
     agent any
-
     environment {
-        REGISTRY_CREDENTIALS = credentials('Token-jenkins') 
-        DOCKER_IMAGE = 'santiadi/bestburger-back:latest'  
-        DOCKER_REPO = 'santiadi'
-        DB_HOST = '74.235.191.229'
-        DB_PORT = '3310'
-        DB_USER = 'my-user'
-        DB_PASSWORD = 'my-user-password'
-        DB_NAME = 'bestburger'
+        DOCKER_CREDENTIALS_ID = 'bestburger-docker-credencials'
+        DOCKER_IMAGE = 'santiadi/bestburger-back:latest'
+        DOCKER_REGISTRY = 'docker.io'
+        REPO_URL = 'https://github.com/BestBurgerPI3/bestburger_API.git'
     }
-
     stages {
         stage('Checkout') {
             steps {
-                checkout scm
+                git branch: 'main', url: "${env.REPO_URL}"
             }
         }
-
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'docker build -t ${DOCKER_REPO}:${BUILD_NUMBER} .'
+                    docker.build("${env.DOCKER_IMAGE}", ".")
                 }
             }
         }
-
-        stage('Docker Login') {
+        stage('Login to Docker Hub') {
             steps {
                 script {
-                    sh "echo $REGISTRY_CREDENTIALS_PSW | docker login -u $REGISTRY_CREDENTIALS_USR --password-stdin"
-                }
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    sh 'docker tag ${DOCKER_REPO}:${BUILD_NUMBER} ${DOCKER_IMAGE}'
-                    sh 'docker push ${DOCKER_IMAGE}'
-                }
-            }
-        }
-
-        stage('Deploy Application') {
-            steps {
-                script {
-                    dir('/home/didier.carvajal.2021') {  
-                        sh 'docker-compose down'  
-                        sh 'docker-compose pull'  
-                        sh 'docker-compose up -d'  
+                    docker.withRegistry("https://${env.DOCKER_REGISTRY}", "${env.DOCKER_CREDENTIALS_ID}") {
+                        sh "docker login -u santiadi -p ${env.DOCKER_CREDENTIALS_ID}"
                     }
                 }
             }
         }
-    }
-
-    post {
-        always {
-            sh 'docker image prune -f'
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    docker.image("${env.DOCKER_IMAGE}").push()
+                }
+            }
         }
+        stage('Deploy to Server') {
+            steps {
+                sh '''
+                    docker-compose down
+                    docker-compose pull back-bestburger
+                    docker-compose up -d
+                '''
+            }
+        }
+    }
+    post {
         success {
-            echo '¡Despliegue exitoso!'
+            echo 'Deployment completed successfully!'
         }
         failure {
-            echo 'El despliegue falló.'
+            echo 'Deployment failed.'
         }
     }
 }
