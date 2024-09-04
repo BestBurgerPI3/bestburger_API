@@ -1,0 +1,11 @@
+services:
+  back-bestburger:
+    image: santiadi/bestburger-back:latest
+    environment:
+      - HOSTDB=74.235.191.229
+      - PORTDB=3310
+      - USERDB=my-user
+      - PASSDB=my-user-password
+      - DATABASE=bestburger
+    ports:  
+      - "3011:3011"
