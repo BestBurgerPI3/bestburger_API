@@ -47,7 +47,7 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 script {
-                    dir('/home/didier.carvajal.2021/docker-compose.yaml') {  
+                    dir('/home/didier.carvajal.2021') {  
                         sh 'docker-compose down'  
                         sh 'docker-compose pull'  
                         sh 'docker-compose up -d'  
