@@ -1,6 +1,0 @@
-POST http://localhost:3311/bestburger/hamburguesas
-Content-Type: application/json
-
-{
-    "nit": 123456789
-}
