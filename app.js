@@ -4,7 +4,7 @@ import http from 'http';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import path from 'path';
-import { PORT, HOSTNAME } from './config.js'
+import { PORT, HOSTNAME } from './config.js';
 
 const app = express();
 app.use(express.json());
