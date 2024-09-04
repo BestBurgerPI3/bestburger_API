@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        REGISTRY_CREDENTIALS = credentials('bestburger-docker-credencials') 
+        REGISTRY_CREDENTIALS = credentials('Token-jenkins') 
         DOCKER_IMAGE = 'santiadi/bestburger-back:latest'  
         DOCKER_REPO = 'santiadi'
         DB_HOST = '74.235.191.229'
