@@ -170,7 +170,7 @@ export class productModel {
 
                     const favs = await pool.query('SELECT COUNT(Hamburguesa_idHamburguesa) as count FROM Favoritos_Hamburguesa WHERE Hamburguesa_idHamburguesa = ?', [row.idHamburguesa]);
 
-                    const favs_count = Number(favs[0].count);
+                    const favs_count = Number(favs[0].count); 
 
                     return {
                         idHamburguesa: row.Hamburguesa_ID,
@@ -183,10 +183,10 @@ export class productModel {
                         Favoritos: favs_count
                     };
                 })
-            );
+            ); 
 
             return hamburguesas;
-        } catch (e) {
+        }catch (e) {
             console.error(e.message);
         }
 

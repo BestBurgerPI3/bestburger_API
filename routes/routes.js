@@ -11,4 +11,5 @@ router.post('/BUSQUEDA-RESTAURANTE', usuarioAccionesController.buscarRestaurante
 router.get('/LISTAR-RESTAURANTE', usuarioAccionesController.listadoRestaurante);
 router.get('/OBTENER-INFORMACION', usuarioController.getInfoRestaurant);
 
+router.post('/hamburguesas', productController.getProducts);
 export default router;
