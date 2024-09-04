@@ -1,15 +1,14 @@
-import { config } from "dotenv";
+/* eslint-disable no-undef */
+import { config } from 'dotenv';
 config();
 
 export const PORT = process.env.PORT;
 export const HOSTNAME = process.env.HOSTNAME;
 
-//DB
+// DB
 export const HOSTDB = process.env.HOSTDB;
 export const USERDB = process.env.USERDB;
 export const PASSDB = process.env.PASSDB;
 export const DATABASE = process.env.DATABASE;
 export const PORTDB = process.env.PORTDB;
-
-//JWT
 export const JWT_SECRET = process.env.JWT_SECRET;
