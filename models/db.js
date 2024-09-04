@@ -1,5 +1,5 @@
-import { HOSTDB, USERDB, PASSDB, DATABASE, PORTDB } from '../config.js';
-import mariadb from 'mariadb';
+import { HOSTDB, USERDB, PASSDB, DATABASE, PORTDB } from '../config'
+import mariadb from 'mariadb'
 
 export const pool = mariadb.createPool({
     host: `${HOSTDB}`,
@@ -7,4 +7,4 @@ export const pool = mariadb.createPool({
     password: `${PASSDB}`,
     database: DATABASE,
     port: `${PORTDB}`
-});
+})

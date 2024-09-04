@@ -8,6 +8,8 @@ COPY ["package.json", "package-lock.json*", "./"]
 
 RUN npm install
 
+COPY . .
+
 EXPOSE 3011
 
 CMD ["node", "app.js"]
