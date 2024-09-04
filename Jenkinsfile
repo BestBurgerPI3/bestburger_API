@@ -5,6 +5,7 @@ pipeline {
         REGISTRY_CREDENTIALS = credentials('bestburger-docker-credencials') 
         DOCKER_IMAGE = 'santiadi/bestburger-back:latest'  
         DOCKER_REPO = 'santiadi/bestburger-back'
+        BUILD_NUMBER='latest'
         DB_HOST = '74.235.191.229'
         DB_PORT = '3310'
         DB_USER = 'my-user'
