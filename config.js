@@ -10,3 +10,6 @@ export const USERDB = process.env.USERDB;
 export const PASSDB = process.env.PASSDB;
 export const DATABASE = process.env.DATABASE;
 export const PORTDB = process.env.PORTDB;
+
+//JWT
+export const JWT_SECRET = process.env.JWT_SECRET;
