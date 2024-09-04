@@ -9,5 +9,6 @@ router.post('/REGISTER_USER', usuarioController.register);
 router.post('/LOGIN_USER', usuarioController.login);
 router.post('/BUSQUEDA-RESTAURANTE', usuarioAccionesController.buscarRestaurante);
 router.get('/LISTAR-RESTAURANTE', usuarioAccionesController.listadoRestaurante);
+router.get('/OBTENER-INFORMACION', usuarioController.getInfoRestaurant);
 
 export default router;
