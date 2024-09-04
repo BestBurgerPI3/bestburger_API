@@ -2,11 +2,12 @@ import { productModel } from '../models/models.js';
 
 export class productController {
     static async getProducts (req, res) {
-        console.log(req.body);
-        const nit = req.body.nit;
-        const hamburguesas = await productModel.getProducts(nit);
+        const id = req.body.nit;
+        console.log(id);
         
-        res.json(hamburguesas);
+        const data = await productModel.getProducts(id);
+        
+        res.json(data);
     }
 
     
