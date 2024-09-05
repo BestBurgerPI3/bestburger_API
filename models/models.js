@@ -1,4 +1,4 @@
-import { pool } from "./db.js";
+import { pool } from './db.js';
 
 export default class MODEL {
 
@@ -20,7 +20,7 @@ export default class MODEL {
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Error al consultar en la BD" });
+            res.status(500).json({ error: 'Error al consultar en la BD' });
         }
     }
     static async getCorreo(Correo) {
@@ -39,7 +39,7 @@ export default class MODEL {
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Error al consultar en la BD" });
+            res.status(500).json({ error: 'Error al consultar en la BD' });
         }
     }
     static async registerUser_bd(Nombre, Correo, hash, Nombre_Usuario, TipoUsuario, Imagen, NIT, Direccion, Telefono, Hora_Apertura, Hora_Cierre) {
@@ -76,7 +76,7 @@ export default class MODEL {
 
         } catch (error) {
             console.error(error);
-            throw new Error("Error al registrar en la base de datos");
+            throw new Error('Error al registrar en la base de datos');
         }
     }
     static async busquedaRestaurante_bd(Nombre) {
@@ -117,7 +117,11 @@ export default class MODEL {
 }
 
 export class productModel {
-    static async getProducts(nit) {
+    
+    static async createProducts() {
+        // Implementar el código para crear un producto
+    }
+    static async readProducts(nit) {
         try {
             const request = await pool.query('SELECT * FROM Hamburguesa WHERE Restaurante_NIT = ?', [nit]);
             console.log(request);
@@ -148,5 +152,18 @@ export class productModel {
             console.error(e.message);
         }
 
+    }
+
+    static async updateProducts() {
+        // Implementar el código para actualizar un producto
+    }
+
+    static async deleteProducts(id) {
+        try {
+            await pool.query('DELETE FROM Hamburguesa WHERE idHamburguesa =?', [id]);
+            return true;
+        } catch (error) {
+            console.error(error.message);
+        }
     }
 }
