@@ -188,7 +188,7 @@ export class productModel {
                     const favs_count = Number(favs[0].count);
 
                     return {
-                        idHamburguesa: row.Hamburguesa_ID,
+                        idHamburguesa: row.idHamburguesa,
                         Nombre: row.Nombre,
                         Calificacion: row.Calificacion,
                         Descripcion: row.Descripcion,
