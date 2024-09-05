@@ -10,34 +10,32 @@ export default class usuarioController {
         try {
             const { Correo, Contraseña } = req.body;
 
-            if (MODEL.getCorreo(Correo) == true) {
+            const userCheck = await MODEL.getCorreo(Correo);
 
+            if (userCheck.exists) {
                 const [User_DB] = await MODEL.getUser(Correo);
                 const match = await bcrypt.compare(Contraseña, User_DB.Contraseña);
 
                 if (match) {
+                    console.log('Inicio de sesión correctamente');
+                    const tipoUsuario = userCheck.TipoUsuario_idTipoUsuario;
+                    const nombre = userCheck.Nombre;
 
-                    console.log('Inicio de sesion Correctamente');
-                    const id = User_DB.idUsuario;
                     if (JWT_SECRET !== '') {
-                        const token = jwt.sign({ id, Correo }, JWT_SECRET, {
+                        const token = jwt.sign({ Correo, tipoUsuario, nombre }, JWT_SECRET, {
                             expiresIn: '1h',
                         });
                         console.log(`Token de inicio de sesión: ${token}`);
-                        res.json({ token });
-
+                        res.status(200).json({ token });
                     } else {
                         res.status(500).json({ error: "No JWT_SECRET en ENV" });
                     }
-
                 } else {
                     res.status(401).json({ error: "Credenciales incorrectas" });
                 }
-
-            }else{
+            } else {
                 res.status(401).json({ error: "Credenciales incorrectas" });
             }
-
 
         } catch (error) {
             console.error("Error durante el login:", error);
@@ -63,5 +61,29 @@ export default class usuarioController {
         }
 
     }
+
+    static async getInfoRestaurant(req, res) {
+
+        const token = req.headers.authorization?.split(' ')[1];
+
+        if (token) {
+            try {
+                const decoded = jwt.verify(token, JWT_SECRET);
+                const { nombre } = decoded;
+
+                const info = await MODEL.getInfoRestaurant_bd(nombre);
+
+                res.status(200).json({ info });
+
+            } catch (error) {
+
+                console.error(error);
+                res.status(500).json({ error: "Error al conseguir la informacion del restaurante" });
+
+            }
+        }
+
+    }
+
 
 }

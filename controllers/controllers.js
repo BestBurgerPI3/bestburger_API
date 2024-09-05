@@ -33,5 +33,4 @@ export class productController {
             res.status(500).json({ error: 'Error al eliminar los productos' });
         }
     }
-
 }
