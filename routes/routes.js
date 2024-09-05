@@ -16,4 +16,5 @@ router.get('/OBTENER-INFORMACION', usuarioController.getInfoRestaurant);
 router.post('/add_hamburguesa', productController.createProducts);
 router.post('/hamburguesas', productController.readProducts);
 router.post('/delete_hamburguesa', productController.deleteProducts);
+router.post('/search_hamburguesa', productController.searchProduct)
 export default router;
