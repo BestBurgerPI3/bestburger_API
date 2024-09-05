@@ -13,6 +13,7 @@ router.post('/BUSQUEDA-RESTAURANTE', usuarioAccionesController.buscarRestaurante
 router.get('/LISTAR-RESTAURANTE', usuarioAccionesController.listadoRestaurante);
 router.get('/OBTENER-INFORMACION', usuarioController.getInfoRestaurant);
 
+router.post('/add_hamburguesa', productController.createProducts);
 router.post('/hamburguesas', productController.readProducts);
 router.post('/delete_hamburguesa', productController.deleteProducts);
 export default router;
