@@ -110,7 +110,7 @@ export default class MODEL {
         try {
             const busqueda = `%${Nombre}%`;
 
-            const [restaurantes] = await pool.query(
+            const restaurantes = await pool.query(
                 'SELECT * FROM Restaurante WHERE Nombre LIKE ?',
                 [busqueda]
             );
