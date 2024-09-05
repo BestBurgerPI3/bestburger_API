@@ -51,6 +51,7 @@ export default class usuarioController {
 
             const registro = await MODEL.registerUser_bd(Nombre, Correo, hash, Nombre_Usuario, TipoUsuario, Imagen, NIT, Direccion, Telefono, Hora_Apertura, Hora_Cierre);
             console.log(registro);
+
             res.status(200).json({ registro });
 
         } catch (error) {
@@ -65,24 +66,23 @@ export default class usuarioController {
     static async getInfoRestaurant(req, res) {
 
         const token = req.headers.authorization?.split(' ')[1];
+        console.log('Token:' + token);
 
         if (token) {
             try {
                 const decoded = jwt.verify(token, JWT_SECRET);
                 const { nombre } = decoded;
+                console.log('Nombre: ' + nombre);
 
                 const info = await MODEL.getInfoRestaurant_bd(nombre);
+                console.log('Info: ', JSON.stringify(info, null, 2));
 
                 res.status(200).json({ info });
-
             } catch (error) {
-
                 console.error(error);
                 res.status(500).json({ error: "Error al conseguir la informacion del restaurante" });
-
             }
         }
-
     }
 
 

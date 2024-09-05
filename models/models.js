@@ -1,4 +1,4 @@
-import { pool } from "./db.js";
+import { pool } from './db.js';
 
 export default class MODEL {
     static async getUser(Correo) {
@@ -19,7 +19,7 @@ export default class MODEL {
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Error al consultar en la BD" });
+            res.status(500).json({ error: 'Error al consultar en la BD' });
         }
     }
     static async getCorreo(Correo) {
@@ -42,7 +42,7 @@ export default class MODEL {
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Error al consultar en la BD" });
+            res.status(500).json({ error: 'Error al consultar en la BD' });
         }
     }
     static async registerUser_bd(Nombre, Correo, hash, Nombre_Usuario, TipoUsuario, Imagen, NIT, Direccion, Telefono, Hora_Apertura, Hora_Cierre) {
@@ -103,7 +103,7 @@ export default class MODEL {
 
         } catch (error) {
             console.error(error);
-            throw new Error("Error al registrar en la base de datos");
+            throw new Error('Error al registrar en la base de datos');
         }
     }
     static async busquedaRestaurante_bd(Nombre) {
@@ -143,23 +143,32 @@ export default class MODEL {
 
     static async getInfoRestaurant_bd(nombre) {
         try {
-
             const [rows] = await pool.query(
                 'SELECT * FROM Restaurante WHERE Nombre = ?',
                 [nombre]
             );
-            return [rows];
+
+            if (rows) {
+                return rows;  // Devuelve solo el primer resultado si es que lo necesitas
+            } else {
+                console.log('No se encontró el restaurante');
+                return null;  // O cualquier otro valor que indique que no hay resultados
+            }
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Error al consultar en la BD" });
+            throw new Error("Error al consultar en la BD");
         }
     }
 
 }
 
 export class productModel {
-    static async getProducts(nit) {
+    
+    static async createProducts() {
+        // Implementar el código para crear un producto
+    }
+    static async readProducts(nit) {
         try {
             const request = await pool.query('SELECT * FROM Hamburguesa WHERE Restaurante_NIT = ?', [nit]);
             console.log(request);
@@ -170,7 +179,7 @@ export class productModel {
 
                     const favs = await pool.query('SELECT COUNT(Hamburguesa_idHamburguesa) as count FROM Favoritos_Hamburguesa WHERE Hamburguesa_idHamburguesa = ?', [row.idHamburguesa]);
 
-                    const favs_count = Number(favs[0].count); 
+                    const favs_count = Number(favs[0].count);
 
                     return {
                         idHamburguesa: row.Hamburguesa_ID,
@@ -183,12 +192,25 @@ export class productModel {
                         Favoritos: favs_count
                     };
                 })
-            ); 
+            );
 
             return hamburguesas;
-        }catch (e) {
+        } catch (e) {
             console.error(e.message);
         }
 
+    }
+
+    static async updateProducts() {
+        // Implementar el código para actualizar un producto
+    }
+
+    static async deleteProducts(id) {
+        try {
+            await pool.query('DELETE FROM Hamburguesa WHERE idHamburguesa =?', [id]);
+            return true;
+        } catch (error) {
+            console.error(error.message);
+        }
     }
 }
