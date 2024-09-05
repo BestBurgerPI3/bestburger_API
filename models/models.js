@@ -143,16 +143,21 @@ export default class MODEL {
 
     static async getInfoRestaurant_bd(nombre) {
         try {
-
             const [rows] = await pool.query(
                 'SELECT * FROM Restaurante WHERE Nombre = ?',
                 [nombre]
             );
-            return [rows];
+
+            if (rows) {
+                return rows;  // Devuelve solo el primer resultado si es que lo necesitas
+            } else {
+                console.log('No se encontró el restaurante');
+                return null;  // O cualquier otro valor que indique que no hay resultados
+            }
 
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Error al consultar en la BD" });
+            throw new Error("Error al consultar en la BD");
         }
     }
 
@@ -170,7 +175,7 @@ export class productModel {
 
                     const favs = await pool.query('SELECT COUNT(Hamburguesa_idHamburguesa) as count FROM Favoritos_Hamburguesa WHERE Hamburguesa_idHamburguesa = ?', [row.idHamburguesa]);
 
-                    const favs_count = Number(favs[0].count); 
+                    const favs_count = Number(favs[0].count);
 
                     return {
                         idHamburguesa: row.Hamburguesa_ID,
@@ -183,10 +188,10 @@ export class productModel {
                         Favoritos: favs_count
                     };
                 })
-            ); 
+            );
 
             return hamburguesas;
-        }catch (e) {
+        } catch (e) {
             console.error(e.message);
         }
 
