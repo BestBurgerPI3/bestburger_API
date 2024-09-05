@@ -125,7 +125,7 @@ export default class MODEL {
     static async listarRestaurante_bd() {
         try {
 
-            const [restaurantes] = await pool.query(
+            const restaurantes = await pool.query(
                 'SELECT * FROM Restaurante'
             );
 
