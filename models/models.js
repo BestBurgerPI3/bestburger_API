@@ -160,8 +160,14 @@ export default class MODEL {
 
 export class productModel {
     
-    static async createProducts() {
-        // Implementar el código para crear un producto
+    static async createProducts(Nombre, Descripcion, Imagen, Precio, Restaurante_NIT) {
+        try {
+            const request = await pool.query('INSERT INTO Hamburguesa (Nombre, Calificacion, Descripcion, Imagen, Precio, Restaurante_NIT) VALUES (?,?,?,?,?,?)', [Nombre, 0, Descripcion, Imagen, Precio, Restaurante_NIT]);
+            console.log(request);
+            return 'Hamburguesa creada exitosamente';
+        } catch (e) {
+            console.error(e.message);
+        }
     }
     static async readProducts(nit) {
         try {
