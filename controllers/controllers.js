@@ -2,6 +2,24 @@ import { productModel } from '../models/models.js';
 
 export class productController {
 
+    static async searchProduct(req, res) {
+        try {
+            const { text, nit } = req.body;
+            console.log(text, nit);
+            
+            const data = await productModel.searchProduct(text, nit);
+            console.log(data);
+            
+            if(data.length === 0) {
+                res.status(404).json({ error: 'Producto no encontrado' });
+            } else {
+                res.status(200).json(data);
+            }
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Error al buscar el producto' });
+        }
+    }
     static async createProducts(req, res) {
         try {
             const { Nombre, Descripcion, Imagen, Precio, Restaurante_NIT, } = req.body;
