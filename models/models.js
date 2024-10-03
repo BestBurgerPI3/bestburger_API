@@ -177,17 +177,17 @@ export default class MODEL {
             );
 
             const Comentarios = await pool.query(
-                'SELECT * FROM Comentario WHERE Hamburguesa_Usuario_idUsuario = ?',
+                'SELECT * FROM Comentario WHERE Usuario_idUsuario = ?',
                 [idUser]
             );
 
             const restaurantesFavoritos = await pool.query(
                 `SELECT r.*
                  FROM Favoritos_Restaurante fr
-                 JOIN Restaurante r ON fr.Restaurante_idRestaurante = r.idRestaurante
+                 JOIN Restaurante r ON fr.Restaurante_NIT = r.NIT
                  WHERE fr.Usuario_idUsuario = ?`,
                 [idUser]
-            );
+            );            
 
             if (rows) {
                 return {
