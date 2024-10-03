@@ -140,7 +140,6 @@ export default class MODEL {
             throw new Error('Error al listar restaurantes de la BD');
         }
     }
-
     static async getInfoRestaurant_bd(nombre) {
         try {
             const [rows] = await pool.query(
@@ -149,10 +148,10 @@ export default class MODEL {
             );
 
             if (rows) {
-                return rows;  // Devuelve solo el primer resultado si es que lo necesitas
+                return rows;
             } else {
                 console.log('No se encontró el restaurante');
-                return null;  // O cualquier otro valor que indique que no hay resultados
+                return null;
             }
 
         } catch (error) {
@@ -160,7 +159,104 @@ export default class MODEL {
             throw new Error("Error al consultar en la BD");
         }
     }
+    static async getInfoUser_db(correo) {
+        try {
+            const [rows] = await pool.query(
+                'SELECT * FROM Usuario WHERE Correo = ?',
+                [correo]
+            );
 
+            const idUser = rows.idUsuario;
+
+            const hamburguesasFavoritas = await pool.query(
+                `SELECT h.*
+                 FROM Favoritos_Hamburguesa fh
+                 JOIN Hamburguesa h ON fh.Hamburguesa_idHamburguesa = h.idHamburguesa
+                 WHERE fh.Usuario_idUsuario = ?`,
+                [idUser]
+            );
+
+            const Comentarios = await pool.query(
+                'SELECT * FROM Comentario WHERE Usuario_idUsuario = ?',
+                [idUser]
+            );
+
+            const restaurantesFavoritos = await pool.query(
+                `SELECT r.*
+                 FROM Favoritos_Restaurante fr
+                 JOIN Restaurante r ON fr.Restaurante_NIT = r.NIT
+                 WHERE fr.Usuario_idUsuario = ?`,
+                [idUser]
+            );            
+
+            if (rows) {
+                return {
+                    usuario: rows,
+                    hamburguesasFavoritas: hamburguesasFavoritas,
+                    comentarios: Comentarios,
+                    restaurantesFavoritos: restaurantesFavoritos
+                };
+            } else {
+                console.log('No se encontró el Usuario');
+                return null;
+            }
+
+        } catch (error) {
+            console.error(error);
+            throw new Error("Error al consultar en la BD");
+        }
+    }
+    static async calificacionProducto_db(idHamburguesa, calificacion) {
+        try {
+            const hamburguesa = await pool.query(
+                `SELECT Calificacion FROM Hamburguesa WHERE idHamburguesa = ?`,
+                [idHamburguesa]
+            );
+            const calificacionActual = Number(hamburguesa[0].Calificacion);
+            const comentarios = await pool.query(
+                `SELECT COUNT(*) AS cantidadCalificaciones FROM Comentario WHERE Hamburguesa_idHamburguesa = ?`,
+                [idHamburguesa]
+            );
+            const cantidadActual = Number(comentarios[0].cantidadCalificaciones);
+            const nuevaCantidad = cantidadActual + 1;
+            const nuevaCalificacion = ((calificacionActual * cantidadActual) + Number(calificacion)) / nuevaCantidad;
+            await pool.query(
+                `UPDATE Hamburguesa SET Calificacion = ? WHERE idHamburguesa = ?`,
+                [nuevaCalificacion, idHamburguesa]
+            );
+            console.log(`Calificación producto actualizada correctamente a ${nuevaCalificacion}`);
+        } catch (error) {
+            console.error(error);
+            throw new Error("Error al agregar en la BD");
+        }
+    }
+    static async calificacionRestaurante_db(NIT) {
+        try {
+
+            const hamburguesas = await pool.query(
+                `SELECT Calificacion FROM Hamburguesa WHERE Restaurante_NIT = ?`,
+                [NIT]
+            );
+            let sumaCalificaciones = 0;
+            hamburguesas.forEach(hamburguesa => {
+                sumaCalificaciones += Number(hamburguesa.Calificacion);
+            });
+            const promedioCalificacion = sumaCalificaciones / hamburguesas.length;
+
+            console.log(`El promedio de calificaciones para el restaurante ${NIT} es: ${promedioCalificacion.toFixed(2)}`);
+
+            await pool.query(
+                `UPDATE Restaurante SET Calificacion = ? WHERE NIT = ?`,
+                [promedioCalificacion, NIT]
+            );
+
+            console.log('Promedio restaurante realizado')
+
+        } catch (error) {
+            console.error(error);
+            throw new Error("Error al agregar en la BD");
+        }
+    }
 }
 
 export class productModel {

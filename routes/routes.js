@@ -12,6 +12,7 @@ router.post('/LOGIN_USER', usuarioController.login);
 router.post('/BUSQUEDA-RESTAURANTE', usuarioAccionesController.buscarRestaurante);
 router.get('/LISTAR-RESTAURANTE', usuarioAccionesController.listadoRestaurante);
 router.get('/OBTENER-INFORMACION', usuarioController.getInfoRestaurant);
+router.get('/OBTENER_INFORMACION_USER', usuarioController.getInfoUser);
 
 router.post('/add_hamburguesa', productController.createProducts);
 router.post('/hamburguesas', productController.readProducts);
