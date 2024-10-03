@@ -85,5 +85,25 @@ export default class usuarioController {
         }
     }
 
+    static async getInfoUser(req, res){
+        // const token = req.headers.authorization?.split(' ')[1];
+        // console.log('Token:' + token);
+
+        // if(token){
+            try {
+                // const decoded = jwt.verify(token, JWT_SECRET);
+                // const { Correo } = decoded;
+                const { Correo} = req.body;
+                console.log('Correo: ' + Correo);
+
+                const info = await MODEL.getInfoUser_db(Correo);
+                res.status(200).json(info);
+
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({error: "Error al conseguir la informacion del usuario"});
+            }
+        // }
+    }
 
 }
