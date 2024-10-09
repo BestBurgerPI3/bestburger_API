@@ -86,14 +86,13 @@ export default class usuarioController {
     }
 
     static async getInfoUser(req, res){
-        // const token = req.headers.authorization?.split(' ')[1];
-        // console.log('Token:' + token);
+        const token = req.headers.authorization?.split(' ')[1];
+        console.log('Token:' + token);
 
-        // if(token){
+        if(token){
             try {
-                // const decoded = jwt.verify(token, JWT_SECRET);
-                // const { Correo } = decoded;
-                const { Correo} = req.body;
+                const decoded = jwt.verify(token, JWT_SECRET);
+                const { Correo } = decoded;
                 console.log('Correo: ' + Correo);
 
                 const info = await MODEL.getInfoUser_db(Correo);
@@ -103,7 +102,7 @@ export default class usuarioController {
                 console.error(error);
                 res.status(500).json({error: "Error al conseguir la informacion del usuario"});
             }
-        // }
+        }
     }
 
 }
