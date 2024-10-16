@@ -290,7 +290,7 @@ export default class MODEL {
         }
     }
     
-    static async obtenerComentarios() {
+    static async obtenerComentarios(idHamburguesa) {
         try {
             const __filename = fileURLToPath(import.meta.url);
 
@@ -300,7 +300,7 @@ export default class MODEL {
                 `SELECT Descripcion, Calificacion, Imagen AS ImagenURL, 
                         Lugar_idLugar, Usuario_idUsuario, Usuario_Foto_Perfil_idFoto_Perfil, 
                         Usuario_TipoUsuario_idTipoUsuario, Hamburguesa_idHamburguesa, Hamburguesa_Restaurante_NIT 
-                 FROM Comentario`
+                 FROM Comentario WHERE idHamburguesa = ?`, [idHamburguesa]
             );
             
             if (rows.length === 0) {
