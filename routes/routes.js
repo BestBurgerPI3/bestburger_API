@@ -13,7 +13,9 @@ router.post('/BUSQUEDA-RESTAURANTE', usuarioAccionesController.buscarRestaurante
 router.get('/LISTAR-RESTAURANTE', usuarioAccionesController.listadoRestaurante);
 router.get('/OBTENER-INFORMACION', usuarioController.getInfoRestaurant);
 router.get('/OBTENER_INFORMACION_USER', usuarioController.getInfoUser);
+router.post('/obtener_comentarios', usuarioAccionesController.obtenerComentarios);
 
+router.post('/comentar_hamburguesa', usuarioAccionesController.comentarHambuguesa)
 router.post('/add_hamburguesa', productController.createProducts);
 router.post('/hamburguesas', productController.readProducts);
 router.post('/delete_hamburguesa', productController.deleteProducts);
