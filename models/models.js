@@ -365,6 +365,30 @@ export default class MODEL {
             throw new Error("Error al agregar en la BD");
         }
     }
+
+    static async FavRestaurante_db(Correo, NIT, fav){
+        try {
+
+            const User = await pool.query(
+                'SELECT * FROM Usuario WHERE Correo = ?',
+                [Correo]
+            );
+            const idUser = User[0].idUsuario;
+            if(fav === 1){
+                const favorito = await pool.query(
+                    'INSERT INTO Favoritos_Restaurante (Usuario_idUsuario, Restaurante_NIT) VALUES (?, ?)',
+                    [idUser, NIT]
+                );
+                return 'agregado correctamente';
+
+            }else{
+                const resultado = await pool.query(
+                    'DELETE FROM Favoritos_Restaurante WHERE Usuario_idUsuario = ? AND Restaurante_NIT = ?',
+                    [idUser, NIT]
+                );
+                return 'eliminado correctamente';
+            }
+            
     static async calificacionHamburguesa_db(id) {
         try {
 
@@ -393,6 +417,37 @@ export default class MODEL {
         }
     }
 
+    static async FavHamburguesa_db(Correo, idHamburguesa, fav){
+        try {
+
+            const User = await pool.query(
+                'SELECT * FROM Usuario WHERE Correo = ?',
+                [Correo]
+            );
+            const idUser = User[0].idUsuario;
+            
+            if(fav === 1){
+                const favorito = await pool.query(
+                    'INSERT INTO Favoritos_Hamburguesa (Usuario_idUsuario, Hamburguesa_idHamburguesa) VALUES (?, ?)',
+                    [idUser, idHamburguesa]
+                );
+                return 'agregado correctamente';
+            }else{
+                const resultado = await pool.query(
+                    'DELETE FROM Favoritos_Hamburguesa WHERE Usuario_idUsuario = ? AND Hamburguesa_idHamburguesa = ?',
+                    [idUser, idHamburguesa]
+                );
+                return 'eliminado correctamente';
+            }
+            
+            
+        } catch (error) {
+            console.error(error);
+            throw new Error("Error al agregar en la BD");
+        }
+    }
+
+
     static async hamburguesasTop() {
         try {
             const request = await pool.query('SELECT * FROM Hamburguesa ORDER BY Calificacion DESC');
@@ -414,6 +469,7 @@ export class productModel {
             console.error(e.message);
         }
     }
+
     static async readProducts(nit) {
         try {
             const request = await pool.query('SELECT * FROM Hamburguesa WHERE Restaurante_NIT = ?', [nit]);
@@ -486,4 +542,54 @@ export class productModel {
             console.error(e.message);
         }
     }
+
+    static async getBestFiveH_db() {
+        try {
+
+            const request = await pool.query(
+                'SELECT * FROM Hamburguesa ORDER BY Calificacion DESC LIMIT 5'
+            );
+            console.log('Consulta de mejores hamburguesas', request);
+
+            return request;
+
+        } catch (error) {
+            console.error(error);
+            throw new Error("Error al buscar en la BD");
+        }
+    }
+
+    static async getBestFiveR_db() {
+        try {
+
+            const request = await pool.query(
+                'SELECT * FROM Restaurante ORDER BY Calificacion DESC LIMIT 5'
+            );
+            console.log('Consulta de mejores Restaurante', request);
+            
+            return request;
+
+        } catch (error) {
+            console.error(error);
+            throw new Error("Error al buscar en la BD");
+        }
+    }
+
+    static async getBurgersRestaurant_db(NIT) {
+        try {
+
+            const hamburguesas = await pool.query(
+                'SELECT * FROM Hamburguesa WHERE Restaurante_NIT = ?',
+                [NIT]
+            );
+
+            return hamburguesas;
+
+        } catch (error) {
+            console.error(error);
+            throw new Error("Error al buscar en la BD");
+        }
+    }
+
+
 }
