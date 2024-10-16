@@ -1,4 +1,8 @@
 import { pool } from './db.js';
+import fs from 'fs';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+import path from 'path';
 
 export default class MODEL {
     static async getUser(Correo) {
@@ -229,10 +233,114 @@ export default class MODEL {
             console.error(error);
             throw new Error("Error al agregar en la BD");
         }
+    }    
+    static async comentarHamburguesa(Descripcion, Calificacion, ImagenBase64, idLugar, idHamburguesa, nit, Correo) {
+        try {
+            const idPersona = await pool.query('SELECT idUsuario FROM Usuario WHERE Correo = ?', Correo);
+
+            const __filename = fileURLToPath(import.meta.url);
+
+            const __dirname = dirname(__filename);
+
+            const uploadsPath = path.join(__dirname, 'uploads');
+    
+            // Crear el directorio si no existe
+            if (!fs.existsSync(uploadsPath)) {
+                fs.mkdirSync(uploadsPath);
+            }
+    
+            // Obtener idFoto y idTipoUsuario del usuario
+            const idFotoResult = await pool.query('SELECT Foto_Perfil_idFoto_Perfil FROM Usuario WHERE idUsuario = ?', [idPersona]);
+            const idTipoUsuarioResult = await pool.query('SELECT TipoUsuario_idTipoUsuario FROM Usuario WHERE idUsuario = ?', [idPersona]);
+    
+            // Asegúrate de que idFoto y idTipoUsuario sean extraídos correctamente
+            const idFoto = idFotoResult[0].Foto_Perfil_idFoto_Perfil
+            const idTipoUsuario = idTipoUsuarioResult[0].TipoUsuario_idTipoUsuario;
+    
+            // Convertir la imagen Base64 a buffer y guardar en el servidor
+            const buffer = Buffer.from(ImagenBase64, 'base64');
+            const fileName = `hamburguesa_${idHamburguesa}.jpg`;
+            const filePath = path.join(uploadsPath, fileName);
+    
+            // Guardar la imagen en la carpeta 'uploads'
+            fs.writeFileSync(filePath, buffer);
+    
+            // Definir la URL donde se guardó la imagen
+            const imageUrl = `/uploads/${fileName}`;
+            
+      
+
+            // Insertar el comentario en la base de datos
+            await pool.query(
+                `INSERT INTO Comentario (Descripcion, Calificacion, Imagen, Lugar_idLugar, Usuario_idUsuario, Usuario_Foto_Perfil_idFoto_Perfil, Usuario_TipoUsuario_idTipoUsuario, Hamburguesa_idHamburguesa, Hamburguesa_Restaurante_NIT) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [Descripcion, Calificacion, imageUrl, idLugar, idPersona, idFoto, idTipoUsuario, idHamburguesa, nit]
+            );
+
+            
+    
+            // Actualizar calificaciones
+            await this.calificacionRestaurante_db(nit);
+            await this.calificacionHamburguesa_db(idHamburguesa);
+    
+            console.log('Comentario agregado correctamente');
+        } catch (error) {
+            console.error(error);
+            throw new Error("Error al agregar en la BD");
+        }
+    }
+    
+    static async obtenerComentarios(idHamburguesa) {
+        try {
+            const __filename = fileURLToPath(import.meta.url);
+
+            const __dirname = dirname(__filename);
+
+            const [rows] = await pool.query(
+                `SELECT Descripcion, Calificacion, Imagen AS ImagenURL, 
+                        Lugar_idLugar, Usuario_idUsuario, Usuario_Foto_Perfil_idFoto_Perfil, 
+                        Usuario_TipoUsuario_idTipoUsuario, Hamburguesa_idHamburguesa, Hamburguesa_Restaurante_NIT 
+                 FROM Comentario WHERE idHamburguesa = ?`, [idHamburguesa]
+            );
+            
+            if (rows.length === 0) {
+                return { message: "No se encontraron comentarios." };
+            }
+    
+            const comentariosConImagenBase64 = rows.map((comentario) => {
+                const imagePath = path.join(__dirname, comentario.ImagenURL);
+                
+                let imagenBase64 = null;
+                
+                try {
+                    const imageBuffer = fs.readFileSync(imagePath);
+                    imagenBase64 = imageBuffer.toString('base64');
+                } catch (error) {
+                    console.error(`Error al leer la imagen: ${comentario.ImagenURL}`, error);
+                    
+                }
+                
+                return {
+                    Descripcion: comentario.Descripcion,
+                    Calificacion: comentario.Calificacion,
+                    ImagenBase64: imagenBase64,  // Imagen en Base64
+                    Lugar_idLugar: comentario.Lugar_idLugar,
+                    Usuario_idUsuario: comentario.Usuario_idUsuario,
+                    Usuario_Foto_Perfil_idFoto_Perfil: comentario.Usuario_Foto_Perfil_idFoto_Perfil,
+                    Usuario_TipoUsuario_idTipoUsuario: comentario.Usuario_TipoUsuario_idTipoUsuario,
+                    Hamburguesa_idHamburguesa: comentario.Hamburguesa_idHamburguesa,
+                    Hamburguesa_Restaurante_NIT: comentario.Hamburguesa_Restaurante_NIT
+                };
+            });
+    
+            return comentariosConImagenBase64;
+        } catch (error) {
+            console.error(error);
+            throw new Error("Error al obtener los comentarios de la BD");
+        }
     }
     static async calificacionRestaurante_db(NIT) {
-        try {
-
+        try {            
             const hamburguesas = await pool.query(
                 `SELECT Calificacion FROM Hamburguesa WHERE Restaurante_NIT = ?`,
                 [NIT]
@@ -257,6 +365,7 @@ export default class MODEL {
             throw new Error("Error al agregar en la BD");
         }
     }
+
     static async FavRestaurante_db(Correo, NIT, fav){
         try {
 
@@ -280,11 +389,34 @@ export default class MODEL {
                 return 'eliminado correctamente';
             }
             
+    static async calificacionHamburguesa_db(id) {
+        try {
+
+            const comentarios = await pool.query(
+                `SELECT Calificacion FROM Comentario WHERE Hamburguesa_idHamburguesa = ?`,
+                [id]
+            );
+            let sumaCalificaciones = 0;
+            comentarios.forEach(comentario => {
+                sumaCalificaciones += Number(comentario.Calificacion);
+            });
+            const promedioCalificacion = sumaCalificaciones / comentarios.length;
+
+            console.log(`El promedio de calificaciones para la hamburguesa ${id} es: ${promedioCalificacion.toFixed(2)}`);
+
+            await pool.query(
+                `UPDATE Hamburguesa SET Calificacion = ? WHERE idHamburguesa = ?`,
+                [promedioCalificacion, id]
+            );
+
+            console.log('Promedio hamburguesa realizado')
+
         } catch (error) {
             console.error(error);
             throw new Error("Error al agregar en la BD");
         }
     }
+
     static async FavHamburguesa_db(Correo, idHamburguesa, fav){
         try {
 
@@ -315,6 +447,15 @@ export default class MODEL {
         }
     }
 
+
+    static async hamburguesasTop() {
+        try {
+            const request = await pool.query('SELECT * FROM Hamburguesa ORDER BY Calificacion DESC');
+            return request;
+        } catch (error) {
+            console.error(error);
+        }
+    }
 }
 
 export class productModel {
