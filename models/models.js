@@ -248,8 +248,6 @@ export default class MODEL {
             if (!fs.existsSync(uploadsPath)) {
                 fs.mkdirSync(uploadsPath);
             }
-            console.log('paso');
-            
     
             // Obtener idFoto y idTipoUsuario del usuario
             const idFotoResult = await pool.query('SELECT Foto_Perfil_idFoto_Perfil FROM Usuario WHERE idUsuario = ?', [idPersona]);
