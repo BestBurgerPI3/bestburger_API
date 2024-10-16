@@ -234,8 +234,10 @@ export default class MODEL {
             throw new Error("Error al agregar en la BD");
         }
     }    
-    static async comentarHamburguesa(Descripcion, Calificacion, ImagenBase64, idLugar, idHamburguesa, nit, idPersona) {
+    static async comentarHamburguesa(Descripcion, Calificacion, ImagenBase64, idLugar, idHamburguesa, nit, Correo) {
         try {
+            const idPersona = await pool.query('SELECT idUsuario FROM Usuario WHERE Correo = ?', Correo);
+
             const __filename = fileURLToPath(import.meta.url);
 
             const __dirname = dirname(__filename);
