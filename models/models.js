@@ -287,6 +287,8 @@ export default class MODEL {
             await this.calificacionHamburguesa_db(idHamburguesa);
     
             console.log('Comentario agregado correctamente');
+            return true;
+            
         } catch (error) {
             console.error(error);
             throw new Error("Error al agregar en la BD");
