@@ -307,7 +307,8 @@ export default class MODEL {
                 return { message: "No se encontraron comentarios." };
             }
     
-            const comentariosConImagenBase64 = rows.map((comentario) => {
+            const comentariosConImagenBase64 = await Promise.all(rows.map(async (comentario) => {
+
                 console.log(comentario.Imagen);
                 const imagePath = path.join(__dirname, comentario.Imagen);
                 
@@ -320,7 +321,13 @@ export default class MODEL {
                     console.error(`Error al leer la imagen: ${comentario.Imagen}`, error);
                     
                 }
+
+                const [username] = await pool.query('SELECT Nombre FROM Usuario WHERE idUsuario = ?', comentario.Usuario_idUsuario);
+
+                console.log('NOMBRE DE USUARIO: ' + username.Nombre);
                 
+
+
                 return {
                     Descripcion: comentario.Descripcion,
                     Calificacion: comentario.Calificacion,
@@ -330,10 +337,13 @@ export default class MODEL {
                     Usuario_Foto_Perfil_idFoto_Perfil: comentario.Usuario_Foto_Perfil_idFoto_Perfil,
                     Usuario_TipoUsuario_idTipoUsuario: comentario.Usuario_TipoUsuario_idTipoUsuario,
                     Hamburguesa_idHamburguesa: comentario.Hamburguesa_idHamburguesa,
-                    Hamburguesa_Restaurante_NIT: comentario.Hamburguesa_Restaurante_NIT
+                    Hamburguesa_Restaurante_NIT: comentario.Hamburguesa_Restaurante_NIT,
+                    Username: username.Nombre
                 };
-            });
+            }));
     
+
+
             return comentariosConImagenBase64;
         } catch (error) {
             console.error(error);
