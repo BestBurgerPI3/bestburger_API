@@ -263,7 +263,7 @@ export default class MODEL {
     
             // Convertir la imagen Base64 a buffer y guardar en el servidor
             const buffer = Buffer.from(ImagenBase64, 'base64');
-            const fileName = `hamburguesa_${Date.now()}.jpg`;
+            const fileName = `hamburguesa_${idHamburguesa}.jpg`;
             const filePath = path.join(uploadsPath, fileName);
     
             // Guardar la imagen en la carpeta 'uploads'
