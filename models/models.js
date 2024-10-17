@@ -298,20 +298,26 @@ export default class MODEL {
             const __filename = fileURLToPath(import.meta.url);
 
             const __dirname = dirname(__filename);
-
-            const [rows] = await pool.query(
-                `SELECT Descripcion, Calificacion, Imagen AS ImagenURL, 
-                        Lugar_idLugar, Usuario_idUsuario, Usuario_Foto_Perfil_idFoto_Perfil, 
-                        Usuario_TipoUsuario_idTipoUsuario, Hamburguesa_idHamburguesa, Hamburguesa_Restaurante_NIT 
-                 FROM Comentario WHERE idHamburguesa = ?`, [idHamburguesa]
+            
+            const rows = await pool.query(
+                `SELECT * FROM Comentario WHERE Hamburguesa_idHamburguesa = ?`, [idHamburguesa]
             );
+
+
+            console.log(rows);
 
             if (rows.length === 0) {
                 return { message: "No se encontraron comentarios." };
             }
 
             const comentariosConImagenBase64 = rows.map((comentario) => {
+
                 const imagePath = path.join(__dirname, comentario.ImagenURL);
+
+
+                console.log(comentario.Imagen);
+                const imagePath = path.join(__dirname, comentario.Imagen);
+                
 
                 let imagenBase64 = null;
 
@@ -319,8 +325,12 @@ export default class MODEL {
                     const imageBuffer = fs.readFileSync(imagePath);
                     imagenBase64 = imageBuffer.toString('base64');
                 } catch (error) {
+
                     console.error(`Error al leer la imagen: ${comentario.ImagenURL}`, error);
 
+
+                    console.error(`Error al leer la imagen: ${comentario.Imagen}`, error);
+                    
                 }
 
                 return {
