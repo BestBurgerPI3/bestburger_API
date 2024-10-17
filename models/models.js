@@ -173,7 +173,7 @@ export default class MODEL {
             const idUser = rows.idUsuario;
 
             const hamburguesasFavoritas = await pool.query(
-                `SELECT h.*
+                `SELECT h.*, h.Nombre AS nombreHamburguesa
                  FROM Favoritos_Hamburguesa fh
                  JOIN Hamburguesa h ON fh.Hamburguesa_idHamburguesa = h.idHamburguesa
                  WHERE fh.Usuario_idUsuario = ?`,
@@ -181,7 +181,10 @@ export default class MODEL {
             );
 
             const Comentarios = await pool.query(
-                'SELECT * FROM Comentario WHERE Usuario_idUsuario = ?',
+                `SELECT c.*, h.Nombre AS nombreHamburguesa
+                FROM Comentario c
+                LEFT JOIN Hamburguesa h ON c.Hamburguesa_idHamburguesa = h.idHamburguesa
+                WHERE c.Usuario_idUsuario = ?`,
                 [idUser]
             );
 
@@ -233,7 +236,7 @@ export default class MODEL {
             console.error(error);
             throw new Error("Error al agregar en la BD");
         }
-    }    
+    }
     static async comentarHamburguesa(Descripcion, Calificacion, ImagenBase64, idLugar, idHamburguesa, nit, Correo) {
         try {
             const idPersona = await pool.query('SELECT idUsuario FROM Usuario WHERE Correo = ?', Correo);
@@ -243,32 +246,32 @@ export default class MODEL {
             const __dirname = dirname(__filename);
 
             const uploadsPath = path.join(__dirname, 'uploads');
-    
+
             // Crear el directorio si no existe
             if (!fs.existsSync(uploadsPath)) {
                 fs.mkdirSync(uploadsPath);
             }
-    
+
             // Obtener idFoto y idTipoUsuario del usuario
             const idFotoResult = await pool.query('SELECT Foto_Perfil_idFoto_Perfil FROM Usuario WHERE idUsuario = ?', [idPersona]);
             const idTipoUsuarioResult = await pool.query('SELECT TipoUsuario_idTipoUsuario FROM Usuario WHERE idUsuario = ?', [idPersona]);
-    
+
             // Asegúrate de que idFoto y idTipoUsuario sean extraídos correctamente
             const idFoto = idFotoResult[0].Foto_Perfil_idFoto_Perfil
             const idTipoUsuario = idTipoUsuarioResult[0].TipoUsuario_idTipoUsuario;
-    
+
             // Convertir la imagen Base64 a buffer y guardar en el servidor
             const buffer = Buffer.from(ImagenBase64, 'base64');
             const fileName = `hamburguesa_${idHamburguesa}.jpg`;
             const filePath = path.join(uploadsPath, fileName);
-    
+
             // Guardar la imagen en la carpeta 'uploads'
             fs.writeFileSync(filePath, buffer);
-    
+
             // Definir la URL donde se guardó la imagen
             const imageUrl = `/uploads/${fileName}`;
-            
-      
+
+
 
             // Insertar el comentario en la base de datos
             await pool.query(
@@ -277,19 +280,19 @@ export default class MODEL {
                 [Descripcion, Calificacion, imageUrl, idLugar, idPersona, idFoto, idTipoUsuario, idHamburguesa, nit]
             );
 
-            
-    
+
+
             // Actualizar calificaciones
             await this.calificacionRestaurante_db(nit);
             await this.calificacionHamburguesa_db(idHamburguesa);
-    
+
             console.log('Comentario agregado correctamente');
         } catch (error) {
             console.error(error);
             throw new Error("Error al agregar en la BD");
         }
     }
-    
+
     static async obtenerComentarios(idHamburguesa) {
         try {
             const __filename = fileURLToPath(import.meta.url);
@@ -300,27 +303,36 @@ export default class MODEL {
                 `SELECT * FROM Comentario WHERE Hamburguesa_idHamburguesa = ?`, [idHamburguesa]
             );
 
+
             console.log(rows);
-            
-            
+
             if (rows.length === 0) {
                 return { message: "No se encontraron comentarios." };
             }
-    
+
             const comentariosConImagenBase64 = rows.map((comentario) => {
+
+                const imagePath = path.join(__dirname, comentario.ImagenURL);
+
+
                 console.log(comentario.Imagen);
                 const imagePath = path.join(__dirname, comentario.Imagen);
                 
+
                 let imagenBase64 = null;
-                
+
                 try {
                     const imageBuffer = fs.readFileSync(imagePath);
                     imagenBase64 = imageBuffer.toString('base64');
                 } catch (error) {
+
+                    console.error(`Error al leer la imagen: ${comentario.ImagenURL}`, error);
+
+
                     console.error(`Error al leer la imagen: ${comentario.Imagen}`, error);
                     
                 }
-                
+
                 return {
                     Descripcion: comentario.Descripcion,
                     Calificacion: comentario.Calificacion,
@@ -333,7 +345,7 @@ export default class MODEL {
                     Hamburguesa_Restaurante_NIT: comentario.Hamburguesa_Restaurante_NIT
                 };
             });
-    
+
             return comentariosConImagenBase64;
         } catch (error) {
             console.error(error);
@@ -341,7 +353,7 @@ export default class MODEL {
         }
     }
     static async calificacionRestaurante_db(NIT) {
-        try {            
+        try {
             const hamburguesas = await pool.query(
                 `SELECT Calificacion FROM Hamburguesa WHERE Restaurante_NIT = ?`,
                 [NIT]
@@ -367,7 +379,7 @@ export default class MODEL {
         }
     }
 
-    static async FavRestaurante_db(Correo, NIT, fav){
+    static async FavRestaurante_db(Correo, NIT, fav) {
         try {
 
             const User = await pool.query(
@@ -375,21 +387,26 @@ export default class MODEL {
                 [Correo]
             );
             const idUser = User[0].idUsuario;
-            if(fav === 1){
+            if (fav === 1) {
                 const favorito = await pool.query(
                     'INSERT INTO Favoritos_Restaurante (Usuario_idUsuario, Restaurante_NIT) VALUES (?, ?)',
                     [idUser, NIT]
                 );
                 return 'agregado correctamente';
 
-            }else{
+            } else {
                 const resultado = await pool.query(
                     'DELETE FROM Favoritos_Restaurante WHERE Usuario_idUsuario = ? AND Restaurante_NIT = ?',
                     [idUser, NIT]
                 );
                 return 'eliminado correctamente';
             }
-            
+        } catch (error) {
+            console.error(error);
+            throw new Error("Error al agregar en la BD");
+        }
+    }
+
     static async calificacionHamburguesa_db(id) {
         try {
 
@@ -418,7 +435,7 @@ export default class MODEL {
         }
     }
 
-    static async FavHamburguesa_db(Correo, idHamburguesa, fav){
+    static async FavHamburguesa_db(Correo, idHamburguesa, fav) {
         try {
 
             const User = await pool.query(
@@ -426,22 +443,22 @@ export default class MODEL {
                 [Correo]
             );
             const idUser = User[0].idUsuario;
-            
-            if(fav === 1){
+
+            if (fav === 1) {
                 const favorito = await pool.query(
                     'INSERT INTO Favoritos_Hamburguesa (Usuario_idUsuario, Hamburguesa_idHamburguesa) VALUES (?, ?)',
                     [idUser, idHamburguesa]
                 );
                 return 'agregado correctamente';
-            }else{
+            } else {
                 const resultado = await pool.query(
                     'DELETE FROM Favoritos_Hamburguesa WHERE Usuario_idUsuario = ? AND Hamburguesa_idHamburguesa = ?',
                     [idUser, idHamburguesa]
                 );
                 return 'eliminado correctamente';
             }
-            
-            
+
+
         } catch (error) {
             console.error(error);
             throw new Error("Error al agregar en la BD");
@@ -567,7 +584,7 @@ export class productModel {
                 'SELECT * FROM Restaurante ORDER BY Calificacion DESC LIMIT 5'
             );
             console.log('Consulta de mejores Restaurante', request);
-            
+
             return request;
 
         } catch (error) {
