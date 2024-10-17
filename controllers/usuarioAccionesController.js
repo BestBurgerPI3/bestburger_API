@@ -38,14 +38,14 @@ export default class usuarioAccionesController {
     }
     static async comentarHambuguesa(req, res) {
         try {
-            const token = req.headers.authorization?.split(' ')[1];
-            const decoded = jwt.verify(token, JWT_SECRET);
-            const { Correo } = decoded;
-            console.log('Correo del usuario: ' + Correo);
+            // const token = req.headers.authorization?.split(' ')[1];
+            // const decoded = jwt.verify(token, JWT_SECRET);
+            // const { Correo } = decoded;
+            // console.log('Correo del usuario: ' + Correo);
             
-            const { Descripcion, Calificacion, Imagen, idLugar, idHamburguesa, nit } = await req.body;
+            const { Correo, Descripcion, Calificacion, Imagen, idLugar, idHamburguesa } = await req.body;
 
-            const response = await MODEL.comentarHamburguesa( Descripcion, Calificacion, Imagen ,idLugar, idHamburguesa, nit, Correo);
+            const response = await MODEL.comentarHamburguesa( Descripcion, Calificacion, Imagen ,idLugar, idHamburguesa, Correo);
             
             if (!response) {
                 return res.status(404).json({ error: "No se encontró la hamburguesa" });

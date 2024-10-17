@@ -237,9 +237,10 @@ export default class MODEL {
             throw new Error("Error al agregar en la BD");
         }
     }    
-    static async comentarHamburguesa(Descripcion, Calificacion, ImagenBase64, idLugar, idHamburguesa, nit, Correo) {
+    static async comentarHamburguesa(Descripcion, Calificacion, ImagenBase64, idLugar, idHamburguesa, Correo) {
         try {
             const idPersona = await pool.query('SELECT idUsuario FROM Usuario WHERE Correo = ?', Correo);
+            const idPersona1 = idPersona[0].idUsuario;
 
             const __filename = fileURLToPath(import.meta.url);
 
@@ -253,8 +254,8 @@ export default class MODEL {
             }
     
             // Obtener idFoto y idTipoUsuario del usuario
-            const idFotoResult = await pool.query('SELECT Foto_Perfil_idFoto_Perfil FROM Usuario WHERE idUsuario = ?', [idPersona]);
-            const idTipoUsuarioResult = await pool.query('SELECT TipoUsuario_idTipoUsuario FROM Usuario WHERE idUsuario = ?', [idPersona]);
+            const idFotoResult = await pool.query('SELECT Foto_Perfil_idFoto_Perfil FROM Usuario WHERE idUsuario = ?', [idPersona1]);
+            const idTipoUsuarioResult = await pool.query('SELECT TipoUsuario_idTipoUsuario FROM Usuario WHERE idUsuario = ?', [idPersona1]);
     
             // Asegúrate de que idFoto y idTipoUsuario sean extraídos correctamente
             const idFoto = idFotoResult[0].Foto_Perfil_idFoto_Perfil
@@ -270,18 +271,17 @@ export default class MODEL {
     
             // Definir la URL donde se guardó la imagen
             const imageUrl = `/uploads/${fileName}`;
-            
-      
+
+            const Restaurante = await pool.query('SELECT Restaurante_NIT FROM Hamburguesa WHERE idHamburguesa = ?', idHamburguesa);
+            const nit = Restaurante[0].Restaurante_NIT;
 
             // Insertar el comentario en la base de datos
             await pool.query(
                 `INSERT INTO Comentario (Descripcion, Calificacion, Imagen, Lugar_idLugar, Usuario_idUsuario, Usuario_Foto_Perfil_idFoto_Perfil, Usuario_TipoUsuario_idTipoUsuario, Hamburguesa_idHamburguesa, Hamburguesa_Restaurante_NIT) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [Descripcion, Calificacion, imageUrl, idLugar, idPersona, idFoto, idTipoUsuario, idHamburguesa, nit]
+                [Descripcion, Calificacion, imageUrl, idLugar, idPersona1, idFoto, idTipoUsuario, idHamburguesa, nit]
             );
 
-            
-    
             // Actualizar calificaciones
             await this.calificacionRestaurante_db(nit);
             await this.calificacionHamburguesa_db(idHamburguesa);
