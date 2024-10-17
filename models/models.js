@@ -80,7 +80,7 @@ export default class MODEL {
             `;
             const result = await pool.query(insertUsuario, [Nombre, Correo, hash, Nombre_Usuario, TipoUsuario, Imagen]);
 
-            if (TipoUsuario === 2) {
+            if (TipoUsuario === '2') {
 
                 const restaurantNameRows = await pool.query(
                     'SELECT COUNT(*) AS count FROM Restaurante WHERE Nombre = ?',
