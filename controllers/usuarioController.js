@@ -1,3 +1,4 @@
+import { productModel } from "../models/models.js";
 import MODEL from "../models/models.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -85,15 +86,14 @@ export default class usuarioController {
         }
     }
 
-    static async getInfoUser(req, res){
-        // const token = req.headers.authorization?.split(' ')[1];
-        // console.log('Token:' + token);
+    static async getInfoUser(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        console.log('Token:' + token);
 
-        // if(token){
+        if (token) {
             try {
-                // const decoded = jwt.verify(token, JWT_SECRET);
-                // const { Correo } = decoded;
-                const { Correo} = req.body;
+                const decoded = jwt.verify(token, JWT_SECRET);
+                const { Correo } = decoded;
                 console.log('Correo: ' + Correo);
 
                 const info = await MODEL.getInfoUser_db(Correo);
@@ -101,9 +101,95 @@ export default class usuarioController {
 
             } catch (error) {
                 console.error(error);
-                res.status(500).json({error: "Error al conseguir la informacion del usuario"});
+                res.status(500).json({ error: "Error al conseguir la informacion del usuario" });
             }
-        // }
+        }
     }
 
+    static async getBestFiveH(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        console.log('Token:' + token);
+        if (token) {
+            try {
+                const info = await productModel.getBestFiveH_db();
+                res.status(200).json({ info });
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ error: "Error al conseguir la informacion del restaurante" });
+            }
+        }
+    }
+
+    static async getBestFiveR(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        console.log('Token:' + token);
+        if (token) {
+            try {
+                const info = await productModel.getBestFiveR_db();
+                res.status(200).json({ info });
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ error: "Error al conseguir la informacion del restaurante" });
+            }
+        }
+    }
+
+    static async getBurgersRestaurant(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        console.log('Token:' + token);
+        if (token) {
+            try {
+                const { NIT } = req.body;
+                const info = await productModel.getBurgersRestaurant_db(NIT);
+
+                res.status(200).json({ info });
+
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ error: "Error al Registrar en favorito Hamburguesa" });
+            }
+        }
+    }
+
+    static async FavRestaurante(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        console.log('Token:' + token);
+        if (token) {
+            try {
+                const { NIT, fav } = req.body;
+                const decoded = jwt.verify(token, JWT_SECRET);
+                const { Correo } = decoded;
+                const info = await MODEL.FavRestaurante_db(Correo, NIT, fav);
+
+                res.status(200).json({ info });
+
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ error: "Error al Registrar en favorito Hamburguesa" });
+            }
+        }
+    }
+
+    static async FavHamburguesa(req, res) {
+        const token = req.headers.authorization?.split(' ')[1];
+        console.log('Token:' + token);
+        if (token) {
+            try {
+                const { idHamburguesa, fav } = req.body;
+                const decoded = jwt.verify(token, JWT_SECRET);
+                const { Correo } = decoded;
+
+                const info = await MODEL.FavHamburguesa_db(Correo, idHamburguesa, fav);
+                res.status(200).json({ info });
+
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({ error: "Error al Registrar en favorito restaurante" });
+            }
+        }
+    }
+
+    // static async agregarCantidadH(req, res){
+
+    // }
 }
