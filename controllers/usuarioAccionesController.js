@@ -1,4 +1,6 @@
 import MODEL from "../models/models.js";
+import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../config.js";
 
 export default class usuarioAccionesController {
 
@@ -37,7 +39,7 @@ export default class usuarioAccionesController {
     static async comentarHambuguesa(req, res) {
         try {
             const token = req.headers.authorization?.split(' ')[1];
-            const decoded = jwt.decode(token);
+            const decoded = jwt.verify(token, JWT_SECRET);
             const { Correo } = decoded;
             console.log('Correo del usuario: ' + Correo);
             
