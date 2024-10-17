@@ -173,7 +173,7 @@ export default class MODEL {
             const idUser = rows.idUsuario;
 
             const hamburguesasFavoritas = await pool.query(
-                `SELECT h.*
+                `SELECT h.*, h.Nombre AS nombreHamburguesa
                  FROM Favoritos_Hamburguesa fh
                  JOIN Hamburguesa h ON fh.Hamburguesa_idHamburguesa = h.idHamburguesa
                  WHERE fh.Usuario_idUsuario = ?`,
@@ -181,7 +181,10 @@ export default class MODEL {
             );
 
             const Comentarios = await pool.query(
-                'SELECT * FROM Comentario WHERE Usuario_idUsuario = ?',
+                `SELECT c.*, h.Nombre AS nombreHamburguesa
+                FROM Comentario c
+                LEFT JOIN Hamburguesa h ON c.Hamburguesa_idHamburguesa = h.idHamburguesa
+                WHERE c.Usuario_idUsuario = ?`,
                 [idUser]
             );
 
@@ -572,7 +575,7 @@ export class productModel {
                 'SELECT * FROM Restaurante ORDER BY Calificacion DESC LIMIT 5'
             );
             console.log('Consulta de mejores Restaurante', request);
-            
+
             return request;
 
         } catch (error) {
