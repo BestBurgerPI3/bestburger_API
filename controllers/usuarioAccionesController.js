@@ -59,7 +59,9 @@ export default class usuarioAccionesController {
 
     static async obtenerComentarios(req, res) {
         try {
-            const { idHamburguesa } = req.body;
+            const { idHamburguesa } =  req.body;
+            console.log(idHamburguesa);
+            
             const comentarios = await MODEL.obtenerComentarios(idHamburguesa);
             console.log('Comentarios:', comentarios);
             res.status(200).json(comentarios);
