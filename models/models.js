@@ -401,11 +401,20 @@ export default class MODEL {
                 );
                 return 'eliminado correctamente';
             }
+
         } catch (error) {
             console.error(error);
             throw new Error("Error al agregar en la BD");
         }
     }
+
+
+            
+        }catch (error) {
+            console.error(error);
+            throw new Error("Error al agregar en la BD");
+    }}
+            
 
     static async calificacionHamburguesa_db(id) {
         try {
