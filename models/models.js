@@ -80,7 +80,7 @@ export default class MODEL {
             `;
             const result = await pool.query(insertUsuario, [Nombre, Correo, hash, Nombre_Usuario, TipoUsuario, Imagen]);
 
-            if (TipoUsuario === 2) {
+            if (TipoUsuario === '2') {
 
                 const restaurantNameRows = await pool.query(
                     'SELECT COUNT(*) AS count FROM Restaurante WHERE Nombre = ?',
@@ -169,9 +169,9 @@ export default class MODEL {
                 'SELECT * FROM Usuario WHERE Correo = ?',
                 [correo]
             );
-
+    
             const idUser = rows.idUsuario;
-
+    
             const hamburguesasFavoritas = await pool.query(
                 `SELECT h.*, h.Nombre AS nombreHamburguesa
                  FROM Favoritos_Hamburguesa fh
@@ -179,15 +179,43 @@ export default class MODEL {
                  WHERE fh.Usuario_idUsuario = ?`,
                 [idUser]
             );
-
-            const Comentarios = await pool.query(
+    
+            const __filename = fileURLToPath(import.meta.url);
+            const __dirname = dirname(__filename);
+    
+            const comentarios = await pool.query(
                 `SELECT c.*, h.Nombre AS nombreHamburguesa
                 FROM Comentario c
                 LEFT JOIN Hamburguesa h ON c.Hamburguesa_idHamburguesa = h.idHamburguesa
                 WHERE c.Usuario_idUsuario = ?`,
                 [idUser]
             );
-
+    
+            const comentariosConImagenBase64 = comentarios[0].map((comentario) => {
+                const imagePath = path.join(__dirname, comentario.Imagen);
+                let imagenBase64 = null;
+    
+                try {
+                    const imageBuffer = fs.readFileSync(imagePath);
+                    imagenBase64 = imageBuffer.toString('base64');
+                } catch (error) {
+                    console.error(`Error al leer la imagen: ${comentario.Imagen}`, error);
+                }
+    
+                return {
+                    Descripcion: comentario.Descripcion,
+                    Calificacion: comentario.Calificacion,
+                    ImagenBase64: imagenBase64,  // Imagen en Base64
+                    Lugar_idLugar: comentario.Lugar_idLugar,
+                    Usuario_idUsuario: comentario.Usuario_idUsuario,
+                    Usuario_Foto_Perfil_idFoto_Perfil: comentario.Usuario_Foto_Perfil_idFoto_Perfil,
+                    Usuario_TipoUsuario_idTipoUsuario: comentario.Usuario_TipoUsuario_idTipoUsuario,
+                    Hamburguesa_idHamburguesa: comentario.Hamburguesa_idHamburguesa,
+                    Hamburguesa_Restaurante_NIT: comentario.Hamburguesa_Restaurante_NIT,
+                    nombreHamburguesa: comentario.nombreHamburguesa
+                };
+            });
+    
             const restaurantesFavoritos = await pool.query(
                 `SELECT r.*
                  FROM Favoritos_Restaurante fr
@@ -195,12 +223,12 @@ export default class MODEL {
                  WHERE fr.Usuario_idUsuario = ?`,
                 [idUser]
             );
-
+    
             if (rows) {
                 return {
                     usuario: rows,
                     hamburguesasFavoritas: hamburguesasFavoritas,
-                    comentarios: Comentarios,
+                    comentarios: comentariosConImagenBase64,
                     restaurantesFavoritos: restaurantesFavoritos
                 };
             } else {
@@ -213,6 +241,7 @@ export default class MODEL {
             throw new Error("Error al consultar en la BD");
         }
     }
+    
     static async calificacionProducto_db(idHamburguesa, calificacion) {
         try {
             const hamburguesa = await pool.query(
