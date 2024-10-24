@@ -191,7 +191,7 @@ export default class MODEL {
                 [idUser]
             );
     
-            const comentariosConImagenBase64 = comentarios[0].map((comentario) => {
+            const comentariosConImagenBase64 = comentarios.map((comentario) => {
                 const imagePath = path.join(__dirname, comentario.Imagen);
                 let imagenBase64 = null;
     
